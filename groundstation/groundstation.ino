@@ -5,7 +5,6 @@ Working of Launch Key:
   STATE OFF:            HIGH
   STATE INTERMEDIATE:   LOW
   STATE ON:             LOW
-Digital pin will be pulled low on either intermediate or on, aborting launch sequence
 */
 
 #include <SoftwareSerial.h>
@@ -48,7 +47,7 @@ void sendState(String data) {
   message = "AT+SEND=0,"+ String(data.length()) + "," + data + "\r\n";
   RYLR.print(message);
   delay(10);
-  RYLR.flush();
+  RYLR.flush(); // clear UART buffer
 }
 
 void checkTestbed() {
