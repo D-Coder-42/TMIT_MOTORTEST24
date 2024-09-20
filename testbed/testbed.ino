@@ -1,3 +1,5 @@
+// LINES 108 & 109 ARE UNTESTED IN INTEGRATED TEST
+
 #include <SoftwareSerial.h>
 #include <AltSoftSerial.h>
 #include <SD.h>
@@ -9,6 +11,7 @@
 #define TX_RS232      9
 #define D4184A        4
 #define D4184B        5
+#define INBUILT_LED   13
 
 // State Machine Definition
 typedef enum {
@@ -26,11 +29,10 @@ AltSoftSerial RS232;
 // Variable Definitions
 File logFile;
 float loadCellReading;
-float tareValue = 0;
+float tareValue = 0, startTime = 0, timeStamp;
 String currState, response, weightString;
 
-// // Prototype Function Definitions
-
+// Prototype Function Definitions
 void getTareValue() {
   if (RS232.available()) {
     tareValue = RS232.parseFloat();
@@ -40,7 +42,8 @@ void getTareValue() {
 void getData() {
   loadCellReading = RS232.parseFloat();
   float weight = loadCellReading - tareValue;
-  weightString = String(weight);
+  timeStamp = (millis() - startTime)/1000;
+  weightString = String(timeStamp)+":"+String(weight);
   Serial.println(weightString);
 }
 
@@ -62,11 +65,7 @@ String parseRYLR(String input) {
   int end = input.indexOf(',', start);
   String parsed = input.substring(start, end);
   parsed.trim();
-  return parsed;  
-}
-
-STATE getCurrentState() {
-  return currentState;
+  return parsed;
 }
 
 void sendState(String currState) {
@@ -80,7 +79,9 @@ void checkInput(String receive) {
   if (receive == "ARM" && currentState == SAFE) {
     Serial.println("CURRENT STATE: ARMED.");
     currentState = ARMED;
-    sendState("ARM");
+    sendState("ARMED");
+    getTareValue();
+    startTime = millis();
     return;
   }
   else if (receive == "DISARM" && currentState == ARMED) {
@@ -92,7 +93,7 @@ void checkInput(String receive) {
   else if (receive == "LAUNCH" && currentState == ARMED) {
     Serial.println("CURRENT STATE: LAUNCHED. ");
     currentState = LAUNCHED;
-    sendState("LAUNCH");
+    sendState("LAUNCHED");
     return;
   }
   else {
@@ -106,11 +107,16 @@ void performOperations() {
     case SAFE:
       break;
     case ARMED:
+      getData(); // These 2 lines are untested
+      logData(); // Test before test day
+      digitalWrite(INBUILT_LED, ~digitalRead(INBUILT_LED));
+      delay(100);
       break;
     case LAUNCHED:
+      digitalWrite(INBUILT_LED, HIGH);
       digitalWrite(D4184A, HIGH);
       digitalWrite(D4184B, HIGH);
-      delay(1000);
+      delay(2000);
       digitalWrite(D4184A, LOW);
       digitalWrite(D4184B, LOW);
 
@@ -134,6 +140,9 @@ void setup() {
   pinMode(D4184B, OUTPUT);
   digitalWrite(D4184A, LOW);
   digitalWrite(D4184B, LOW);
+
+  pinMode(INBUILT_LED, OUTPUT);
+  digitalWrite(INBUILT_LED, LOW);
 
   //RYLR setup
   RYLR.begin(57600);
