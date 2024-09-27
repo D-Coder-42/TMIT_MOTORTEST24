@@ -1,4 +1,4 @@
-// FINAL CHANGES TO CODE HAVEN"T BEEN TESTED
+// FINAL CHANGES TO CODE HAVEN'T BEEN TESTED
 
 /*
 Working of Launch Key:
@@ -32,6 +32,7 @@ SoftwareSerial RYLR(RX_RYLR, TX_RYLR);
 // Variable Definitions
 File logFile;
 String message, response;
+bool flag = false;
 
 String parseRYLR(String input) {
   int start = input.indexOf(',') + 1;
@@ -78,7 +79,7 @@ void checkInput() {
       }
       break;
     case ARMED:
-      if (digitalRead(ARM_SW) == LOW) {
+      if (digitalRead(ARM_SW) == LOW && digitalRead(LCH_SW) == LOW) {
         currentState = SAFE;
         sendState("DISARM");
         delay(1000);
@@ -89,7 +90,11 @@ void checkInput() {
         delay(1000);
       }
       else if(digitalRead(LCH_SW) == HIGH && digitalRead(LCH_KEY) == HIGH) { // Digital pin of key is pulled up when unconnected
-        Serial.println("LAUNCH SWITCH HIGH. TURN KEY ON TO LAUNCH");
+        if(!flag) {
+          Serial.println("LAUNCH SWITCH HIGH. TURN KEY ON TO LAUNCH");
+          flag = true;
+        }
+      }
       break;
     case LAUNCHED:
       while(1) {
