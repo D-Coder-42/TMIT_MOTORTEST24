@@ -6,7 +6,7 @@ float calRead, calFactor = 1.0;
 String weightString;
 
 float mapVtoKG(unsigned long int read) {
-  return (calFactor*read*500.0)/1024.0;
+  return (calFactor*read*500.0)/1023.0;
 }
 
 void getCalibrationFactor() {
