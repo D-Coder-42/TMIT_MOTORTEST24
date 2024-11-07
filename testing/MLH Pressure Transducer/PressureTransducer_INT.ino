@@ -5,7 +5,7 @@ volatile uint16_t overflowCount = 0; // Counter for timer overflows
 ISR(ADC_vect)
 {
   adcVal = ADC;
-  Serial.println(adcVal));
+  Serial.println(adcVal);
 
   ADCSRA |= (1<<ADSC);
 }
@@ -23,10 +23,6 @@ void initADC() {
 int main()
 {
   Serial.begin(9600);
-  // setting pin A3 as input, pull up disable
-  DDRC &= ~(1<<DDC3);
-  PORTC &= ~(1<<PORTC3);
-  MCUCR |= (1<<PUD);
 
   initADC();
   sei();
