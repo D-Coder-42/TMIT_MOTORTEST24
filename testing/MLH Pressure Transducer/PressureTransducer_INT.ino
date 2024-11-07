@@ -6,6 +6,8 @@ ISR(ADC_vect)
 {
   adcVal = ADC;
   Serial.println(adcVal));
+
+  ADCSRA |= (1<<ADSC);
 }
 
 void initADC() {
@@ -29,5 +31,6 @@ int main()
   initADC();
   sei();
 
+  ADCSRA |= (1<<ADSC);
   while(1);
 }
