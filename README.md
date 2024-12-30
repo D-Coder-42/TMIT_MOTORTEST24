@@ -1,6 +1,6 @@
 # Motor Test Firmware and Documentation (2024)
 
-This repository contains the firmware and documentation developed for the motor tests held in 2024. The structure and content of the repository are organized to facilitate understanding, modification, and reuse of the code for static firing systems.
+This repository contains the firmware and documentation developed for the motor tests by ***thrustMIT*** held in 2024. The structure and content of the repository are organized to facilitate understanding, modification, and reuse of the code for static firing systems.
 
 ## Motor Tests conducted
 ### *1. 7th October, 2024* - **M-Class Motor (M 1916)**
@@ -44,7 +44,7 @@ This directory contains the experimental codes tested for individual components 
      - **HX711 ADC Converter**
 
 2. **`MKR Zero/`**
-   - Experimental versions of the testbed code implemented on an **Arduino MKRZero** microcontroller for evaluating a potential upgrade from the Arduino UNO.
+   - Experimental versions of the codes implemented on an **Arduino MKRZero** microcontroller for evaluating a potential upgrade from the Arduino UNO.
 
 3. **`MLH Pressure Transducer/`**
    - Code for acquiring pressure data from the **MLH Pressure Transducer** using **bare-metal (register-level) programming**
@@ -57,7 +57,7 @@ This directory contains the experimental codes tested for individual components 
      - **Transmission code** and **Reception code** for testing
      - **Transceiver Code** for 2-way telemetry
 
-
 ---
+
 ## License
 This repository is licensed under [MIT License](LICENSE).
