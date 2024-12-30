@@ -3,13 +3,14 @@
 #define RX_RYLR 7
 #define TX_RYLR 6
 
+// Object Initialization
 SoftwareSerial RYLR (RX_RYLR, TX_RYLR);
 String data,transmit;
 
 void sendData(String data) {
   transmit = "AT+SEND=0," + String(data.length()) + "," + data + "\r\n";
   RYLR.print(transmit);
-  delay(10);
+  delay(10); // Delay for proper transmission
 }
 
 void setup() {
