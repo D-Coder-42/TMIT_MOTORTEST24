@@ -3,14 +3,14 @@
 This repository contains the firmware and documentation developed for the motor tests held in 2024. The structure and content of the repository are organized to facilitate understanding, modification, and reuse of the code for static firing systems.
 
 ## Motor Tests conducted
-### *1. 7th October, 2024* - **M-Class Motor**
-- Total Impulse:
-- Maximum Pressure:
-- Burn Time:
-### *2. 8th October, 2024* - **J-Class Motor**
-- Total Impulse:
-- Maximum Pressure:
-- Burn Time:
+### *1. 7th October, 2024* - **M-Class Motor (M 1916)**
+- Total Impulse: 9145.7 N-sec
+- Average Thrust: 1916.2 N
+- Burn Time: 4.773 sec
+### *2. 8th October, 2024* - **J-Class Motor (J 590)**
+- Total Impulse: 1209.6 N-sec
+- Average Thrust: 590.4 N
+- Burn Time: 2.049 s
 
 ---
 
@@ -20,17 +20,17 @@ This repository contains the firmware and documentation developed for the motor 
 Contains the Arduino UNO firmware for the ground station side of the static firing system.
 - **Files:**
   - `GroundCode.ino`
-  - `GroundStation_FINAL.ino` - used for Static Fire Motor Test conducted on 7th and 8th October, 2024
   - `groundstation.ino`
+  - `GroundStation_FINAL.ino` - used for Static Fire Motor Test conducted on 7th and 8th October, 2024
 
 ---
 
 ### **2. `testbed/`**
 Contains the Arduino UNO firmware for the testbed side of the static firing system.
 - **Files:**
-  - `Testbed_FINAL.ino` - used for Static Fire Motor Test conducted on 7th and 8th October, 2024
   - `testbed.ino`
   - `testbed_analog.ino`
+  - `Testbed_FINAL.ino` - used for Static Fire Motor Test conducted on 7th and 8th October, 2024
 
 ---
 
