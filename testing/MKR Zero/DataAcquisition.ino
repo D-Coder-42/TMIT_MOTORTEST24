@@ -1,32 +1,33 @@
 #include <Arduino.h>
 
+// Veriable Declarations
 int timer = 0;
-int pressureRead/*, loadCellRead*/;
+int pressureRead, loadCellRead;
 
 unsigned char* pressureArray;
-// unsigned char* loadCellArray;
+unsigned char* loadCellArray;
 
 const int maxSize = 6000;  // Total buffer size for each array
 int pressureIndex = 0;     // Tracks data size for each array
-// int loadCellIndex = 0;
+int loadCellIndex = 0;
 
 void setup() {
   Serial.begin(115200);
-  analogReadResolution(12);
+  analogReadResolution(12); // Set ADC resolution to 12 bits
 
   // Allocate memory for the arrays
   pressureArray = (unsigned char*)malloc(maxSize * sizeof(unsigned char));
-  // loadCellArray = (unsigned char*)malloc(maxSize * sizeof(unsigned char));
+  loadCellArray = (unsigned char*)malloc(maxSize * sizeof(unsigned char));
 
   // Check for successful memory allocation
-  if (!pressureArray /*|| !loadCellArray*/) {
+  if (!pressureArray || !loadCellArray) {
     Serial.println("Memory allocation failed!");
     while (1);  // Halt execution if memory allocation fails
   }
 
   // Initialize arrays with null terminators
   pressureArray[0] = '\0';
-  // loadCellArray[0] = '\0';
+  loadCellArray[0] = '\0';
 }
 
 // Function to append data safely
@@ -48,24 +49,24 @@ void appendData(unsigned char* buffer, int* index, int value) {
 void loop() {
   // Read analog values
   pressureRead = analogRead(A3);
-  // loadCellRead = analogRead(A5);
+  loadCellRead = analogRead(A5);
 
   // Append data to buffers
   appendData(pressureArray, &pressureIndex, pressureRead);
-  // appendData(loadCellArray, &loadCellIndex, loadCellRead);
+  appendData(loadCellArray, &loadCellIndex, loadCellRead);
 
   // Print and reset every second
   if (millis() - timer >= 1000) {
     timer = millis();
     Serial.println("Pressure Data:");
     Serial.println((char*)pressureArray);
-    // Serial.println("Load Cell Data:");
-    // Serial.println((char*)loadCellArray);
+    Serial.println("Load Cell Data:");
+    Serial.println((char*)loadCellArray);
 
     // Reset buffers for new data
     pressureIndex = 0;
-    // loadCellIndex = 0;
-    pressureArray[0] = '\0';  // Reset to empty string
-    // loadCellArray[0] = '\0';
+    loadCellIndex = 0;
+    pressureArray[0] = '\0';
+    loadCellArray[0] = '\0';
   }
 }
