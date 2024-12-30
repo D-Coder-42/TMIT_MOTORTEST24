@@ -3,6 +3,7 @@
 #define RX_RYLR 7
 #define TX_RYLR 6
 
+// Object Initialization
 SoftwareSerial RYLR (RX_RYLR, TX_RYLR);
 String response;
 
@@ -19,6 +20,7 @@ void receiveData() {
   if (RYLR.available()) {
     response = RYLR.readStringUntil('\n');
     response = parseRYLR(response);
+    Serial.println("DATA RECEIVED: " + response);
   }
 }
 
@@ -29,5 +31,4 @@ void setup() {
 
 void loop() {
   receiveData();
-  Serial.println("DATA RECEIVED: " + response);
 }
