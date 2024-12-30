@@ -1,3 +1,11 @@
+/*
+Working of Launch Key:
+  STATE OFF:            HIGH
+  STATE INTERMEDIATE:   LOW
+  STATE ON:             LOW
+Digital pin will be pulled low on either intermediate or on, aborting launch sequence
+*/
+
 #include <SoftwareSerial.h>
 #include <SD.h>
 
@@ -6,6 +14,7 @@
 #define TX_RYLR       6
 #define ARM_SW        2
 #define LCH_SW        3
+#define LCH_KEY       4
 
 // State Machine Definition
 typedef enum {
@@ -37,14 +46,16 @@ void sendState(String data) {
   message = "AT+SEND=0,"+ String(data.length()) + "," + data + "\r\n";
   RYLR.print(message);
   delay(10);
+  RYLR.flush();
 }
 
 void checkTestbed() {
   if (RYLR.available()) {
     response = RYLR.readStringUntil('\n');
     response = parseRYLR(response);
-    if (response.length() > 2) {
+    if (response.length() > 3) {
       Serial.println(response);
+      logData();
     }
   }
 }
@@ -73,20 +84,33 @@ void checkInput() {
       }
       else if(digitalRead(LCH_SW) == HIGH) {
         currentState = LAUNCHED;
-        delay(1000);
-        sendState("LAUNCH");
       }
       break;
     case LAUNCHED:
-      while(1) {
-        checkTestbed();
-        logData();
+      Serial.println("TURN LAUNCH KEY OFF TO ABORT");
+      // Launch countdown
+      for(int i=10;i>0;i--) {
+        Serial.println("LAUNCH IN T-"+String(i)+" s");
+        if (digitalRead(LCH_KEY) == LOW) {
+          currentState = SAFE;
+          sendState("DISARM");
+          Serial.println("LAUNCH ABORTED");
+          Serial.println("Reset System Manually");
+          delay(250); // Delay to print all messages before exiting
+          exit(1);
+        }
+        delay(1000);
+      }
+      if(digitalRead(LCH_KEY) == HIGH) {
+        sendState("LAUNCH");
+        while(1) {
+          checkTestbed();
+        }
       }
       break;
     default:
       break;
   }
-
 }
 
 void setup() {
@@ -94,6 +118,9 @@ void setup() {
 
   pinMode(ARM_SW, INPUT);
   pinMode(LCH_SW, INPUT);
+  pinMode(LCH_KEY, INPUT_PULLUP);
+  digitalWrite(ARM_SW, LOW);
+  digitalWrite(LCH_SW, LOW);
 
   //RYLR setup
   RYLR.begin(57600);
