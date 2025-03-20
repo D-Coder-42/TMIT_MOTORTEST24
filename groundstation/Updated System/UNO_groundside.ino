@@ -2,8 +2,8 @@
 #include <SoftwareSerial.h>
 
 // GPIO definitions
-#define RX_RYLR       3
-#define TX_RYLR       4
+#define RX_RYLR       4
+#define TX_RYLR       3
 #define ARM_SW        2
 #define LCH_SW        7
 
@@ -66,10 +66,10 @@ void checkTestbed() {
       currentState = FAILURE;
       Serial.println("GROUND STATE: FAILURE");
     }
-    if (response.length() > 3) {
+    // if (response.length() > 3) {
       Serial.println(response);
-      logData();
-    }
+      // logData();
+    // }
   }
 }
 
@@ -113,11 +113,10 @@ void checkInput() {
       }
       break;
     case LAUNCHED:
-        checkTestbed();
-        if(Serial.available()) {
-          String input = Serial.readStringUntil('\n');
-          if (input == "DONE")
-            sendState("DONE");
+        if (digitalRead(ARM_SW) == LOW && digitalRead(LCH_SW) == LOW) {
+          Serial.println("SWITCHES IN DONE STATE");
+          sendState("DONE");
+          delay(500);
         }
       break;
     case DONE:
@@ -141,17 +140,17 @@ void setup() {
 
   //SD Card setup
   Serial.println("\nSerial Comm. Initialised.");
-  if (!SD.begin()) {
-    Serial.println("SD card initialisation failed.");
-    // return;
-  }
-  logFile = SD.open("loadcell.txt", FILE_WRITE);
-  if (!logFile) {
-    Serial.println("Couldn't open log file");
-  } 
-  else {
-    Serial.println("Logging to SD card...");
-  }
+  // if (!SD.begin()) {
+  //   Serial.println("SD card initialisation failed.");
+  //   // return;
+  // }
+  // logFile = SD.open("loadcell.txt", FILE_WRITE);
+  // if (!logFile) {
+  //   Serial.println("Couldn't open log file");
+  // } 
+  // else {
+  //   Serial.println("Logging to SD card...");
+  // }
   Serial.println("GROUNDSTATION SET UP COMPLETE.");
 }
 

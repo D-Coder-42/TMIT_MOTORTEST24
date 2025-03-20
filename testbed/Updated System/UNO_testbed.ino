@@ -21,14 +21,7 @@ SoftwareSerial RYLR(RYLR_RX, RYLR_TX);
 AltSoftSerial ucComm;
 
 int temp1Read, temp2Read;
-// int timer = 0;
-// const int maxRows = 25;
-// const int maxCols = 2;
-// unsigned char* tempArray[maxRows];
-// int tempIndex[maxRows] = {0};
-// int tempLogs[maxRows] = {0};
-// int currentRow = 0;
-// int tempDelay;
+int start;
 
 typedef enum State {SAFE, ARMED, LAUNCHED, DONE, FAILURE};
 State currentState = SAFE;
@@ -36,6 +29,15 @@ State currentState = SAFE;
 // Create an instance of the MAX6675 class with the specified pins
 MAX6675 thermocouple1(SCK, CS1, SO);
 MAX6675 thermocouple2(SCK, CS2, SO);
+
+String parseRYLR(String input) {
+  int start = input.indexOf(',') + 1;
+  start = input.indexOf(',', start) + 1;
+  int end = input.indexOf(',', start);
+  String parsed = input.substring(start, end);
+  parsed.trim();
+  return parsed;  
+}
 
 void sendState(String currState) 
 {
@@ -67,51 +69,6 @@ void sendState(String currState)
   }
 }
 
-// void appendData(int value) 
-// {
-//   if (currentRow >= maxRows) 
-//   {
-//     Serial.println("Max data storage reached!");
-//     return;
-//   }
-  
-//   int currTime = millis();
-//   int neededSpace = snprintf(NULL, 0, "%d,%d\n", currTime - tempDelay, value);
-
-//   if (tempIndex[currentRow] + neededSpace >= maxCols - 1) 
-//   {
-//     Serial.println("Row buffer full, moving to next row.");
-//     currentRow++;
-//     if (currentRow >= maxRows)
-//     {
-//       Serial.println("All buffers full!");
-//       return;
-//     }
-//     tempIndex[currentRow] = 0;
-//     tempLogs[currentRow] = 0;
-//   }
-
-//   snprintf((char*)(tempArray[currentRow] + tempIndex[currentRow]), maxCols - tempIndex[currentRow], "%d,%d\n", currTime - tempDelay, value);
-//   tempIndex[currentRow] += neededSpace;
-//   tempLogs[currentRow] += 1;
-//   tempDelay = currTime;
-// }
-
-
-// void dataInit() 
-// {
-//   for (int i = 0; i < maxRows; i++) 
-//   {
-//     tempArray[i] = (unsigned char*)malloc(maxCols * sizeof(unsigned char));
-//     if (!tempArray[i]) 
-//     {
-//       Serial.println("Memory allocation failed :(");
-//       while (1);
-//     }
-//     tempArray[i][0] = '\0';
-//   }
-// }
-
 void getData() 
 {
   temp1Read = thermocouple1.readCelsius();
@@ -120,32 +77,33 @@ void getData()
   Serial.print(temp1Read);
   Serial.print(" , ");
   Serial.println(temp2Read);
-  String mess = String(temp1Read) + "," + String(temp2Read);
+  String mess = String(temp1Read) + ";" + String(temp2Read);
   sendState(mess);
 }
 
 void checkInput(String receive) 
 {
   receive.trim();
-  
+  receive = parseRYLR(receive);
+  Serial.println(receive);
   if (receive == "ARM" && currentState == SAFE) 
   {
     digitalWrite(N_ENABLE, LOW);
-    while(!(ucComm.available()||digitalRead(ACK)==LOW));
-    if(digitalRead(ACK)==LOW)
-    {
+    // while(!(ucComm.available()||digitalRead(ACK)==LOW));
+    // if(digitalRead(ACK)==LOW)
+    // {
       Serial.println("CURRENT STATE: ARMED");
       currentState = ARMED;
       sendState("TESTBED STATE: ARMED");
       return;
-    }
-    else
-    {
-      Serial.println("MKRZero didnt respond to signal");  
-      currentState = FAILURE;
-      sendState("ERR=1; TESTBED STATE: FAILURE");
-    }
-    return;
+    // }
+    // else
+    // {
+    //   Serial.println("MKRZero didnt respond to signal");  
+    //   currentState = FAILURE;
+    //   sendState("ERR=1; TESTBED STATE: FAILURE");
+    // }
+    // return;
   }
   if (receive == "DISARM" && currentState == ARMED) 
   {
@@ -220,7 +178,7 @@ void performOperations()
       break;
 
     case LAUNCHED:
-      Serial.println("D4184s LATCHED");
+      // Serial.println("D4184s LATCHED");
       digitalWrite(D4184A, HIGH);
       digitalWrite(D4184B, HIGH);
 
@@ -230,7 +188,15 @@ void performOperations()
         String backup = ucComm.readString();
         sendState(backup);
       }
-      delay(250);
+      
+      start = millis();
+      while(millis() - start < 250) {
+        if (RYLR.available()) 
+        {
+          String input = RYLR.readStringUntil('\n');
+          checkInput(input);
+        }
+      }
       break;
 
     case DONE:
